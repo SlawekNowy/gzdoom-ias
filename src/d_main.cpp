@@ -121,6 +121,7 @@
 #include "screenjob.h"
 #include "startscreen.h"
 #include "shiftstate.h"
+#include <filesystem>
 
 #ifdef __unix__
 #include "i_system.h"  // for SHARE_DIR
@@ -2020,6 +2021,10 @@ static void AddAutoloadFiles(const char *autoname, TArray<FString>& allwads)
 		file = NicePath("$HOME/" GAME_DIR "/skins");
 		D_AddDirectory (allwads, file, "*.wad", GameConfig);
 #endif	
+
+		for (auto& subdir : std::filesystem::recursive_directory_iterator("../../workshop/content/1960590"))
+			if (subdir.is_directory())
+				D_AddWildFile(allwads, subdir.path().string().c_str(), "*.wad", GameConfig);
 
 		// Add common (global) wads
 		D_AddConfigFiles(allwads, "Global.Autoload", "*.wad", GameConfig);
