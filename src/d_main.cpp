@@ -2022,9 +2022,15 @@ static void AddAutoloadFiles(const char *autoname, TArray<FString>& allwads)
 		D_AddDirectory (allwads, file, "*.wad", GameConfig);
 #endif	
 
-		for (auto& subdir : std::filesystem::recursive_directory_iterator("../../workshop/content/1960590"))
-			if (subdir.is_directory())
-				D_AddWildFile(allwads, subdir.path().string().c_str(), "*.wad", GameConfig);
+		for (auto& entry : std::filesystem::recursive_directory_iterator("../../workshop/content/1960590"))
+			if (entry.is_regular_file())
+			{
+				const std::filesystem::path p = entry.path();
+				const std::filesystem::path e = p.extension();
+
+				if (e == ".wad" || e == ".pk3" || e == ".pk7" || e == ".pkz" || e == ".zip" || e == ".7z")
+					D_AddFile(allwads, p.string().c_str(), false, -1, GameConfig);
+			}
 
 		// Add common (global) wads
 		D_AddConfigFiles(allwads, "Global.Autoload", "*.wad", GameConfig);
