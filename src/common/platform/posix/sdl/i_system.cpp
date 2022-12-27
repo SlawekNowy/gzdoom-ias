@@ -48,8 +48,11 @@
 #include <sys/ioctl.h>
 
 #ifdef __linux__
+#include <linux/version.h>
 #include <asm/unistd.h>
+#if LINUX_VERSION_CODE>KERNEL_VERSION(3,12,0)
 #include <linux/perf_event.h>
+#endif
 #include <sys/mman.h>
 #include "printf.h"
 #endif
@@ -171,6 +174,8 @@ void CalculateCPUSpeed()
 	PerfToMillisec = PerfToSec*1000.;
 #elif defined(__linux__)
 	// [MK] read from perf values if we can
+	//MrSoup678: Not every linux installation can ship these. Steam-runtime 'scout' doesn't (Kernel ver 3.2).
+	#if LINUX_VERSION_CODE>KERNEL_VERSION(3,12,0)
 	struct perf_event_attr pe;
 	memset(&pe,0,sizeof(struct perf_event_attr));
 	pe.type = PERF_TYPE_HARDWARE;
@@ -202,6 +207,7 @@ void CalculateCPUSpeed()
 	PerfToMillisec = PerfToSec*1000.;
 	if (!batchrun) Printf("CPU speed: %.0f MHz\n", mhz);
 	close(fd);
+#endif
 #endif
 }
 
